@@ -1,0 +1,49 @@
+[package]
+name = "nekobullet"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust binding for Bullet Physics library"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/user/NekoBullet"
+keywords = ["physics", "simulation", "bullet", "game", "3d"]
+categories = ["game-development", "simulation", "api-bindings"]
+readme = "README.md"
+
+[dependencies]
+glam = "0.27"
+
+[dev-dependencies]
+approx = "0.5"
+
+[features]
+default = ["collision", "dynamics"]
+double-precision = []
+collision = []
+dynamics = []
+softbody = []
+vehicle = []
+character = []
+multibody = []
+inverse-dynamics = []
+hacd = []
+vhacd = []
+gimpact = []
+parallel = []
+wasm-bindgen = []
+wasm-parallel = []
+full = [
+    "collision",
+    "dynamics",
+    "softbody",
+    "vehicle",
+    "character",
+    "multibody",
+    "inverse-dynamics",
+    "hacd",
+    "vhacd",
+    "gimpact",
+    "parallel",
+]
+
+[build-dependencies]
+cc = "1.0"

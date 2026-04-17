@@ -1,0 +1,196 @@
+#pragma once
+
+#include <stdlib.h>
+#include <string.h>
+
+namespace std {
+    template<typename T>
+    class vector {
+    private:
+        T* m_data;
+        size_t m_size;
+        size_t m_capacity;
+
+    public:
+        vector() : m_data(nullptr), m_size(0), m_capacity(0) {}
+        
+        explicit vector(size_t n) : m_data(nullptr), m_size(0), m_capacity(0) {
+            if (n > 0) {
+                m_data = static_cast<T*>(malloc(n * sizeof(T)));
+                if (m_data) {
+                    m_size = n;
+                    m_capacity = n;
+                    for (size_t i = 0; i < n; ++i) {
+                        new (&m_data[i]) T();
+                    }
+                }
+            }
+        }
+        
+        vector(const vector& other) : m_data(nullptr), m_size(0), m_capacity(0) {
+            if (other.m_size > 0) {
+                m_data = static_cast<T*>(malloc(other.m_size * sizeof(T)));
+                if (m_data) {
+                    m_size = other.m_size;
+                    m_capacity = other.m_size;
+                    for (size_t i = 0; i < m_size; ++i) {
+                        new (&m_data[i]) T(other.m_data[i]);
+                    }
+                }
+            }
+        }
+        
+        vector(vector&& other) noexcept : m_data(other.m_data), m_size(other.m_size), m_capacity(other.m_capacity) {
+            other.m_data = nullptr;
+            other.m_size = 0;
+            other.m_capacity = 0;
+        }
+        
+        ~vector() {
+            clear();
+        }
+        
+        vector& operator=(const vector& other) {
+            if (this != &other) {
+                clear();
+                if (other.m_size > 0) {
+                    m_data = static_cast<T*>(malloc(other.m_size * sizeof(T)));
+                    if (m_data) {
+                        m_size = other.m_size;
+                        m_capacity = other.m_size;
+                        for (size_t i = 0; i < m_size; ++i) {
+                            new (&m_data[i]) T(other.m_data[i]);
+                        }
+                    }
+                }
+            }
+            return *this;
+        }
+        
+        vector& operator=(vector&& other) noexcept {
+            if (this != &other) {
+                clear();
+                m_data = other.m_data;
+                m_size = other.m_size;
+                m_capacity = other.m_capacity;
+                other.m_data = nullptr;
+                other.m_size = 0;
+                other.m_capacity = 0;
+            }
+            return *this;
+        }
+        
+        T& operator[](size_t i) { return m_data[i]; }
+        const T& operator[](size_t i) const { return m_data[i]; }
+        
+        T* data() { return m_data; }
+        const T* data() const { return m_data; }
+        
+        T* begin() { return m_data; }
+        const T* begin() const { return m_data; }
+        
+        T* end() { return m_data + m_size; }
+        const T* end() const { return m_data + m_size; }
+        
+        size_t size() const { return m_size; }
+        size_t capacity() const { return m_capacity; }
+        bool empty() const { return m_size == 0; }
+        
+        void clear() {
+            if (m_data) {
+                for (size_t i = 0; i < m_size; ++i) {
+                    m_data[i].~T();
+                }
+                free(m_data);
+                m_data = nullptr;
+                m_size = 0;
+                m_capacity = 0;
+            }
+        }
+        
+        void resize(size_t new_size) {
+            if (new_size > m_capacity) {
+                size_t new_capacity = new_size * 2;
+                T* new_data = static_cast<T*>(malloc(new_capacity * sizeof(T)));
+                if (new_data) {
+                    for (size_t i = 0; i < m_size; ++i) {
+                        new (&new_data[i]) T(static_cast<T&&>(m_data[i]));
+                    }
+                    free(m_data);
+                    m_data = new_data;
+                    m_capacity = new_capacity;
+                }
+            }
+            if (new_size > m_size) {
+                for (size_t i = m_size; i < new_size; ++i) {
+                    new (&m_data[i]) T();
+                }
+            } else if (new_size < m_size) {
+                for (size_t i = new_size; i < m_size; ++i) {
+                    m_data[i].~T();
+                }
+            }
+            m_size = new_size;
+        }
+        
+        void push_back(const T& value) {
+            if (m_size >= m_capacity) {
+                size_t new_capacity = m_capacity == 0 ? 1 : m_capacity * 2;
+                T* new_data = static_cast<T*>(malloc(new_capacity * sizeof(T)));
+                if (new_data) {
+                    for (size_t i = 0; i < m_size; ++i) {
+                        new (&new_data[i]) T(static_cast<T&&>(m_data[i]));
+                    }
+                    free(m_data);
+                    m_data = new_data;
+                    m_capacity = new_capacity;
+                }
+            }
+            new (&m_data[m_size]) T(value);
+            ++m_size;
+        }
+        
+        void pop_back() {
+            if (m_size > 0) {
+                --m_size;
+                m_data[m_size].~T();
+            }
+        }
+        
+        template<typename Compare>
+        void sort(Compare comp) {
+            for (size_t i = 0; i < m_size; ++i) {
+                for (size_t j = i + 1; j < m_size; ++j) {
+                    if (comp(m_data[i], m_data[j]) > 0) {
+                        T temp = static_cast<T&&>(m_data[i]);
+                        m_data[i] = static_cast<T&&>(m_data[j]);
+                        m_data[j] = static_cast<T&&>(temp);
+                    }
+                }
+            }
+        }
+        
+        void sort() {
+            sort([](const T& a, const T& b) { return a < b; });
+        }
+    };
+    
+    template<typename T, typename Compare>
+    void sort(T* begin, T* end, Compare comp) {
+        size_t n = end - begin;
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = i + 1; j < n; ++j) {
+                if (comp(begin[i], begin[j]) > 0) {
+                    T temp = static_cast<T&&>(begin[i]);
+                    begin[i] = static_cast<T&&>(begin[j]);
+                    begin[j] = static_cast<T&&>(temp);
+                }
+            }
+        }
+    }
+
+    template<typename T>
+    void sort(T* begin, T* end) {
+        sort(begin, end, [](const T& a, const T& b) { return a < b; });
+    }
+}

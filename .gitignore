@@ -24,7 +24,7 @@ pip-selfcheck.json
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-CTestTestFile.cmake
+CTestTestfile.cmake
 
 # Visual Studio build files
 *.vcxproj
@@ -40,3 +40,10 @@ CTestTestFile.cmake
 .vscode/
 .idea/
 cmake-build-debug/
+
+# Rust
+target/
+Cargo.lock
+*.rlib
+*.rmeta
+
