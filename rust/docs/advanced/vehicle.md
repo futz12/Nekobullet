@@ -20,6 +20,9 @@ let tuning = VehicleTuning {
 
 // 使用默认值
 let tuning = VehicleTuning::default();
+
+// 使用 Bullet 原生默认调参（与 C++ 侧保持一致）
+let native_tuning = VehicleTuning::from_native_default();
 ```
 
 ## VehicleRaycaster

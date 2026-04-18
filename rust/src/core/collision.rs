@@ -20,6 +20,24 @@ pub enum CollisionShapeType {
     StaticPlane = 9,
 }
 
+impl CollisionShapeType {
+    fn from_raw(raw: i32) -> Option<Self> {
+        match raw {
+            0 => Some(Self::Box),
+            1 => Some(Self::Sphere),
+            2 => Some(Self::Capsule),
+            3 => Some(Self::Cylinder),
+            4 => Some(Self::Cone),
+            5 => Some(Self::Compound),
+            6 => Some(Self::ConvexHull),
+            7 => Some(Self::TriangleMesh),
+            8 => Some(Self::Heightfield),
+            9 => Some(Self::StaticPlane),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum CollisionShape {
     Box { half_extents: Vec3 },
@@ -180,7 +198,8 @@ impl ShapeHandle {
     }
 
     pub fn shape_type(&self) -> CollisionShapeType {
-        self.shape_type
+        let raw_type = unsafe { ffi::nk_shape_get_type(self.handle.as_ptr()) };
+        CollisionShapeType::from_raw(raw_type).unwrap_or(self.shape_type)
     }
 
     pub fn handle(&self) -> *mut c_void {

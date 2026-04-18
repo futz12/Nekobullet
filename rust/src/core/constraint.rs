@@ -21,6 +21,25 @@ pub enum ConstraintType {
     Unknown = 255,
 }
 
+impl ConstraintType {
+    fn from_raw(raw: i32) -> Self {
+        match raw {
+            0 => Self::Point2Point,
+            1 => Self::Hinge,
+            2 => Self::Slider,
+            3 => Self::Fixed,
+            4 => Self::Generic6Dof,
+            5 => Self::ConeTwist,
+            6 => Self::Generic6DofSpring,
+            7 => Self::Universal,
+            8 => Self::Hinge2,
+            9 => Self::Gear,
+            10 => Self::Generic6DofSpring2,
+            _ => Self::Unknown,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum ConstraintParam {
@@ -41,7 +60,13 @@ impl Constraint {
     }
 
     pub fn constraint_type(&self) -> ConstraintType {
-        self.constraint_type
+        let raw_type = unsafe { ffi::nk_constraint_get_constraint_type(self.handle.as_ptr()) };
+        let queried = ConstraintType::from_raw(raw_type);
+        if queried == ConstraintType::Unknown {
+            self.constraint_type
+        } else {
+            queried
+        }
     }
 
     pub fn set_enabled(&self, enabled: bool) {
@@ -649,6 +674,51 @@ pub struct HingeConstraint {
     inner: Constraint,
 }
 
+pub struct FixedConstraint {
+    inner: Constraint,
+}
+
+impl FixedConstraint {
+    pub unsafe fn new(
+        body_a_handle: *mut c_void,
+        body_b_handle: *mut c_void,
+    ) -> Self {
+        let handle = unsafe {
+            ffi::nk_constraint_create_fixed(
+                body_a_handle,
+                body_b_handle,
+            )
+        };
+
+        Self {
+            inner: Constraint {
+                handle: unsafe { NonNull::new_unchecked(handle) },
+                constraint_type: ConstraintType::Fixed,
+            },
+        }
+    }
+
+    pub fn set_enabled(&self, enabled: bool) {
+        self.inner.set_enabled(enabled);
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.inner.is_enabled()
+    }
+
+    pub fn set_breaking_impulse_threshold(&self, threshold: Real) {
+        self.inner.set_breaking_impulse_threshold(threshold);
+    }
+
+    pub fn get_breaking_impulse_threshold(&self) -> Real {
+        self.inner.get_breaking_impulse_threshold()
+    }
+
+    pub fn handle(&self) -> *mut c_void {
+        self.inner.handle.as_ptr()
+    }
+}
+
 impl HingeConstraint {
     pub unsafe fn new(
         body_a_handle: *mut c_void,
@@ -805,6 +875,13 @@ impl ConstraintBuilder {
         self
     }
 
+    pub fn fixed(mut self, body_a: *mut c_void, body_b: *mut c_void) -> Self {
+        self.constraint_type = ConstraintType::Fixed;
+        self.body_a = Some(body_a);
+        self.body_b = Some(body_b);
+        self
+    }
+
     pub fn generic_6dof(mut self, body_a: *mut c_void, body_b: *mut c_void) -> Self {
         self.constraint_type = ConstraintType::Generic6Dof;
         self.body_a = Some(body_a);
@@ -903,6 +980,14 @@ impl ConstraintBuilder {
                         body_b,
                         self.pivot_a.x, self.pivot_a.y, self.pivot_a.z,
                         self.pivot_b.x, self.pivot_b.y, self.pivot_b.z,
+                    )
+                }
+            }
+            ConstraintType::Fixed => {
+                unsafe {
+                    ffi::nk_constraint_create_fixed(
+                        body_a,
+                        body_b,
                     )
                 }
             }

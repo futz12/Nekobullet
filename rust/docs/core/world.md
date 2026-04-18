@@ -156,6 +156,12 @@ let constraint = world.create_point2point_constraint(
     Vec3::new(-0.5, 0.0, 0.0),  // body B 的锚点
 );
 
+// 固定约束
+let fixed = world.create_fixed_constraint(
+    handle_a,
+    handle_b,
+);
+
 // 6自由度约束
 let constraint = world.create_generic_6dof_constraint(
     handle_a,

@@ -195,6 +195,8 @@ let heightfield = CollisionShapeBuilder::new()
 ```rust
 let shape_type = shape.shape_type();
 
+// shape_type() 会查询底层 C++ 实际类型，而不是仅返回 Rust 侧缓存值
+
 match shape_type {
     CollisionShapeType::Box => println!("Box shape"),
     CollisionShapeType::Sphere => println!("Sphere shape"),
@@ -260,7 +262,7 @@ let radius = sphere_shape.get_sphere_radius();
 
 ```rust
 let radius = capsule_shape.get_capsule_radius();
-let half_height = capsule_shape.get_half_height();
+let half_height = capsule_shape.get_capsule_half_height();
 ```
 
 ### 圆柱

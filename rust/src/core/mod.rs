@@ -36,7 +36,7 @@ pub use constraint::{
     ConstraintBuilder, ConstraintType, 
     Generic6DofConstraint, Generic6DofSpringConstraint, ConeTwistConstraint,
     UniversalConstraint, Hinge2Constraint, GearConstraint, Generic6DofSpring2Constraint,
-    HingeConstraint, SliderConstraint,
+    HingeConstraint, FixedConstraint, SliderConstraint,
     RotateOrder,
 };
 pub use ghost::GhostObject;

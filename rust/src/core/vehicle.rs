@@ -30,6 +30,34 @@ impl Default for VehicleTuning {
 }
 
 impl VehicleTuning {
+    pub fn from_native_default() -> Self {
+        let mut ffi_tuning = ffi::nkVehicleTuning {
+            suspension_stiffness: 0.0,
+            suspension_compression: 0.0,
+            suspension_damping: 0.0,
+            max_suspension_travel_cm: 0.0,
+            friction_slip: 0.0,
+            max_suspension_force: 0.0,
+        };
+
+        unsafe {
+            ffi::nk_vehicle_tuning_init_default(&mut ffi_tuning);
+        }
+
+        Self::from_ffi(ffi_tuning)
+    }
+
+    fn from_ffi(ffi_tuning: ffi::nkVehicleTuning) -> Self {
+        Self {
+            suspension_stiffness: ffi_tuning.suspension_stiffness,
+            suspension_compression: ffi_tuning.suspension_compression,
+            suspension_damping: ffi_tuning.suspension_damping,
+            max_suspension_travel_cm: ffi_tuning.max_suspension_travel_cm,
+            friction_slip: ffi_tuning.friction_slip,
+            max_suspension_force: ffi_tuning.max_suspension_force,
+        }
+    }
+
     pub fn to_ffi(&self) -> ffi::nkVehicleTuning {
         ffi::nkVehicleTuning {
             suspension_stiffness: self.suspension_stiffness,

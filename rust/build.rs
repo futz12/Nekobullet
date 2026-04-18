@@ -135,11 +135,21 @@ fn compile_bullet_core(build: &mut cc::Build, src_dir: &Path, is_msvc: bool, ext
         compile_bullet_collision(build, src_dir);
     }
 
+    let enable_multibody_core = multibody || softbody || dynamics;
+
     if dynamics {
-        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, parallel, inverse_dynamics);
+        compile_bullet_dynamics(
+            build,
+            src_dir,
+            vehicle,
+            character,
+            enable_multibody_core,
+            parallel,
+            inverse_dynamics,
+        );
     }
 
-    if softbody {
+    if softbody || dynamics {
         compile_bullet_softbody(build, src_dir);
     }
 
@@ -437,6 +447,19 @@ fn compile_bullet_dynamics(
         }
     }
 
+    if multibody || inverse_dynamics {
+        let mlcp_files = [
+            "btDantzigLCP.cpp",
+            "btLemkeAlgorithm.cpp",
+            "btMLCPSolver.cpp",
+        ];
+
+        let mlcp_dir = dynamics_dir.join("MLCPSolvers");
+        for file in &mlcp_files {
+            build.file(mlcp_dir.join(file));
+        }
+    }
+
 }
 
 fn compile_bullet_softbody(build: &mut cc::Build, src_dir: &Path) {
@@ -662,11 +685,21 @@ fn compile_bullet_core_wasm(build: &mut cc::Build, src_dir: &Path) {
         compile_bullet_collision(build, src_dir);
     }
 
+    let enable_multibody_core = multibody || softbody || dynamics;
+
     if dynamics {
-        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, false, inverse_dynamics);
+        compile_bullet_dynamics(
+            build,
+            src_dir,
+            vehicle,
+            character,
+            enable_multibody_core,
+            false,
+            inverse_dynamics,
+        );
     }
 
-    if softbody {
+    if softbody || dynamics {
         compile_bullet_softbody(build, src_dir);
     }
 

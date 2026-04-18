@@ -7,6 +7,7 @@
 | 类型 | 描述 | 自由度 |
 |------|------|--------|
 | Point2Point | 点对点约束 | 3 (位置固定，可旋转) |
+| Fixed | 固定约束 | 0 (无相对运动) |
 | Hinge | 铰链约束 | 1 (绕轴旋转) |
 | Slider | 滑动约束 | 1 (沿轴滑动) |
 | Generic6Dof | 6自由度约束 | 可配置 |
@@ -59,6 +60,12 @@ let constraint_handle = ConstraintBuilder::new()
     .build()
     .ok();
 
+// 固定约束
+let fixed_constraint = ConstraintBuilder::new()
+    .fixed(body_a.handle(), body_b.handle())
+    .build()
+    .ok();
+
 // 6自由度约束
 let constraint_handle = ConstraintBuilder::new()
     .generic_6dof(body_a.handle(), body_b.handle())
@@ -87,6 +94,9 @@ let constraint = world.create_point2point_constraint(
     Vec3::new(0.5, 0.0, 0.0),   // body A 的锚点（局部坐标）
     Vec3::new(-0.5, 0.0, 0.0),  // body B 的锚点（局部坐标）
 );
+
+// 查询真实约束类型（来自底层 C++）
+// 例如 Constraint::constraint_type()
 ```
 
 ## 铰链约束 (Hinge)
@@ -104,6 +114,19 @@ let hinge = unsafe { HingeConstraint::new(
 ) };
 
 hinge.set_enabled(true);
+```
+
+## 固定约束 (Fixed)
+
+固定两个刚体间的相对位置与相对旋转。
+
+```rust
+let fixed = world.create_fixed_constraint(
+    handle_a,
+    handle_b,
+);
+
+assert!(fixed.is_some());
 ```
 
 ## 滑动约束 (Slider)
@@ -289,6 +312,7 @@ impl ConstraintBuilder {
     
     // 约束类型
     pub fn point2point(self, body_a: *mut c_void, body_b: *mut c_void) -> Self;
+    pub fn fixed(self, body_a: *mut c_void, body_b: *mut c_void) -> Self;
     pub fn generic_6dof(self, body_a: *mut c_void, body_b: *mut c_void) -> Self;
     pub fn generic_6dof_spring(self, body_a: *mut c_void, body_b: *mut c_void) -> Self;
     pub fn cone_twist(self, body_a: *mut c_void, body_b: *mut c_void) -> Self;

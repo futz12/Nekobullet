@@ -87,6 +87,11 @@ if let Some(transform) = decomp.get_child_transform(0) {
     println!("Child 0 position: {:?}", transform.position);
     println!("Child 0 rotation: {:?}", transform.rotation);
 }
+
+// 获取子形状原生指针（非 owning）
+if let Some(child_ptr) = decomp.get_child_shape_ptr(0) {
+    println!("Child 0 ptr: {:?}", child_ptr);
+}
 ```
 
 ## 完整示例

@@ -283,6 +283,36 @@ impl PhysicsWorld {
         Some(handle)
     }
 
+    pub fn create_fixed_constraint(
+        &mut self,
+        body_a_handle: RigidBodyHandle,
+        body_b_handle: RigidBodyHandle,
+    ) -> Option<ConstraintHandle> {
+        let body_a = self.bodies.get(&body_a_handle)?;
+        let body_b = self.bodies.get(&body_b_handle)?;
+
+        let constraint = unsafe {
+            ffi::nk_constraint_create_fixed(
+                body_a.handle(),
+                body_b.handle(),
+            )
+        };
+
+        if constraint.is_null() {
+            return None;
+        }
+
+        let handle = self.next_constraint_handle.get();
+        self.next_constraint_handle.set(handle + 1);
+
+        unsafe {
+            ffi::nk_world_add_constraint(self.handle.as_ptr(), constraint, 1);
+        }
+
+        self.constraints.insert(handle, unsafe { NonNull::new_unchecked(constraint) });
+        Some(handle)
+    }
+
     pub fn create_generic_6dof_constraint(
         &mut self,
         body_a_handle: RigidBodyHandle,
@@ -558,6 +588,13 @@ impl PhysicsWorld {
     #[cfg(feature = "softbody")]
     pub fn num_softbodies(&self) -> i32 {
         unsafe { ffi::nk_world_get_num_softbodies(self.handle.as_ptr()) }
+    }
+
+    #[cfg(feature = "softbody")]
+    pub fn softbody_world_info(&self) -> super::softbody::SoftBodyWorldInfo {
+        let info = super::softbody::SoftBodyWorldInfo::new();
+        info.set_gravity(self.get_gravity());
+        info
     }
 
     #[cfg(feature = "vehicle")]

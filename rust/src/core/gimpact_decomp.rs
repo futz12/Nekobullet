@@ -54,6 +54,25 @@ impl GImpactDecompShape {
         unsafe { ffi::nk_gimpact_decomp_shape_get_margin(self.handle.as_ptr()) }
     }
 
+    pub fn get_child_shape_ptr(&self, index: i32) -> Option<*mut c_void> {
+        if index < 0 || index >= self.num_child_shapes() {
+            return None;
+        }
+
+        let shape = unsafe {
+            ffi::nk_gimpact_decomp_shape_get_child_shape(
+                self.handle.as_ptr(),
+                index,
+            )
+        };
+
+        if shape.is_null() {
+            None
+        } else {
+            Some(shape)
+        }
+    }
+
     pub fn get_child_transform(&self, index: i32) -> Option<Transform> {
         if index < 0 || index >= self.num_child_shapes() {
             return None;

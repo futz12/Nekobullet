@@ -15,6 +15,7 @@
 | [`step(dt: Real)`](../core/world.md#物理模拟) | 步进模拟 |
 | [`add_rigid_body(body: RigidBody)`](../core/world.md#刚体管理) | 添加刚体 |
 | [`remove_rigid_body(handle: RigidBodyHandle)`](../core/world.md#刚体管理) | 移除刚体 |
+| [`create_fixed_constraint(a, b)`](../core/world.md#创建约束) | 创建固定约束 |
 | [`ray_test_closest(from: Vec3, to: Vec3)`](../core/world.md#射线检测) | 射线检测 |
 
 [完整文档](../core/world.md)
@@ -111,6 +112,7 @@
 | 方法 | 描述 |
 |------|------|
 | [`new(chassis, raycaster, tuning)`](../advanced/vehicle.md#创建) | 创建车辆 |
+| [`from_native_default()`](../advanced/vehicle.md#vehicletuning) | 使用 C++ 原生默认调参 |
 | [`add_wheel(...)`](../advanced/vehicle.md#添加车轮) | 添加车轮 |
 | [`set_steering(angle: Real, wheel: i32)`](../advanced/vehicle.md#控制) | 设置转向 |
 | [`apply_engine_force(force: Real, wheel: i32)`](../advanced/vehicle.md#控制) | 施加引擎力 |
@@ -153,6 +155,7 @@ GImpact 形状。
 | [`from_trimesh(trimesh, scale)`](../advanced/gimpact.md#创建) | 从三角形网格创建 |
 | [`update_bound()`](../advanced/gimpact.md#属性) | 更新边界 |
 | [`num_child_shapes() -> i32`](../advanced/gimpact.md#属性) | 获取子形状数量 |
+| [`get_child_shape_ptr(index)`](../advanced/gimpact.md#属性) | 获取分解子形状原生指针 |
 
 [完整文档](../advanced/gimpact.md)
 

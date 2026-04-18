@@ -160,12 +160,16 @@ mod tests_multibody_constraint {
 
     fn create_world_and_body() -> (crate::core::world::PhysicsWorld, RigidBody) {
         let world = PhysicsWorldBuilder::new().build();
-        let shape = CollisionShapeBuilder::new().sphere(1.0).build();
+        let shape = CollisionShapeBuilder::new()
+            .sphere(1.0)
+            .build()
+            .expect("shape should be created");
         let body = RigidBodyBuilder::new()
-            .shape(&shape)
+            .shape(shape)
             .mass(1.0)
             .position(Vec3::new(0.0, 0.0, 0.0))
-            .build(&world);
+            .build()
+            .expect("rigid body should be created");
         (world, body)
     }
 

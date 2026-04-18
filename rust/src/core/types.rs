@@ -536,7 +536,7 @@ mod tests {
         }
 
         #[test]
-        fn test_qtmulQV3_basic() {
+        fn test_qtmul_qv3_basic() {
             let q = Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
             let v = Vec3::X;
             let result = q * v;
@@ -545,7 +545,7 @@ mod tests {
         }
 
         #[test]
-        fn test_qtmulV3Q_basic() {
+        fn test_qtmul_v3_q_basic() {
             let q = Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
             let v = Vec3::X;
             let result = q * v;
@@ -567,7 +567,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3mulM_basic() {
+        fn test_3x3mul_m_basic() {
             let m1 = Mat4::from_rotation_x(std::f32::consts::FRAC_PI_4);
             let m2 = Mat4::from_rotation_y(std::f32::consts::FRAC_PI_4);
             let result = m1 * m2;
@@ -599,7 +599,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3mulMV_basic() {
+        fn test_3x3mul_mv_basic() {
             let m = glam::Mat3::from_cols(
                 Vec3::new(1.0, 2.0, 3.0),
                 Vec3::new(4.0, 5.0, 6.0),
@@ -620,7 +620,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3setRot_basic() {
+        fn test_3x3set_rot_basic() {
             let q = Quat::from_rotation_x(std::f32::consts::FRAC_PI_4);
             let m = Mat4::from_quat(q);
             let extracted = Quat::from_mat4(&m);
@@ -630,7 +630,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3getRot_basic() {
+        fn test_3x3get_rot_basic() {
             let q = Quat::from_rotation_y(std::f32::consts::FRAC_PI_3);
             let m = Mat4::from_quat(q);
             let extracted = Quat::from_mat4(&m);
@@ -640,7 +640,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3mulM1M2_basic() {
+        fn test_3x3mul_m1_m2_basic() {
             let m1 = glam::Mat3::from_cols(
                 Vec3::new(1.0, 0.0, 0.0),
                 Vec3::new(0.0, 1.0, 0.0),
@@ -665,7 +665,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3mulVM_basic() {
+        fn test_3x3mul_vm_basic() {
             let m = glam::Mat3::from_cols(
                 Vec3::new(1.0, 0.0, 0.0),
                 Vec3::new(0.0, 1.0, 0.0),
@@ -691,7 +691,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3transposeTimes_basic() {
+        fn test_3x3transpose_times_basic() {
             let a = glam::Mat3::from_cols(
                 Vec3::new(1.0, 2.0, 3.0),
                 Vec3::new(4.0, 5.0, 6.0),
@@ -718,7 +718,7 @@ mod tests {
         }
 
         #[test]
-        fn test_3x3timesTranspose_basic() {
+        fn test_3x3times_transpose_basic() {
             let a = glam::Mat3::from_cols(
                 Vec3::new(1.0, 2.0, 3.0),
                 Vec3::new(4.0, 5.0, 6.0),
@@ -919,7 +919,7 @@ mod tests {
 
         #[test]
         fn test_maxdot_basic() {
-            let vertices = vec![
+            let vertices = [
                 Vec3::new(1.0, 0.0, 0.0),
                 Vec3::new(0.0, 1.0, 0.0),
                 Vec3::new(0.0, 0.0, 1.0),
@@ -942,7 +942,7 @@ mod tests {
 
         #[test]
         fn test_mindot_basic() {
-            let vertices = vec![
+            let vertices = [
                 Vec3::new(1.0, 0.0, 0.0),
                 Vec3::new(-1.0, 0.0, 0.0),
                 Vec3::new(0.0, 1.0, 0.0),
