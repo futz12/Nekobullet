@@ -5,6 +5,35 @@
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 
+class NkOverlapFilterCallback : public btOverlapFilterCallback
+{
+public:
+    nkCollisionFilterCallback m_callback;
+    void* m_userData;
+
+    NkOverlapFilterCallback(nkCollisionFilterCallback callback, void* userData)
+        : m_callback(callback), m_userData(userData)
+    {
+    }
+
+    virtual bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
+    {
+        if (!m_callback)
+            return true;
+
+        btCollisionObject* obj0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+        btCollisionObject* obj1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+
+        btRigidBody* body0 = btRigidBody::upcast(obj0);
+        btRigidBody* body1 = btRigidBody::upcast(obj1);
+
+        if (!body0 || !body1)
+            return true;
+
+        return m_callback(static_cast<nkRigidBodyHandle>(body0), static_cast<nkRigidBodyHandle>(body1), m_userData) != 0;
+    }
+};
+
 nkWorldHandle nk_world_create()
 {
     btDefaultCollisionConfiguration* collision_config = new btDefaultCollisionConfiguration();
@@ -177,9 +206,65 @@ void nk_world_set_contact_callback(nkWorldHandle world, nkContactCallback callba
 
 void nk_world_set_collision_filter(nkWorldHandle world, nkCollisionFilterCallback callback, void* user_data)
 {
-    (void)world;
-    (void)callback;
-    (void)user_data;
+    if (!world) return;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    btOverlappingPairCache* pair_cache = dynamics_world->getBroadphase()->getOverlappingPairCache();
+    btOverlapFilterCallback* old_callback = pair_cache->getOverlapFilterCallback();
+    if (old_callback)
+    {
+        delete old_callback;
+    }
+    if (callback)
+    {
+        NkOverlapFilterCallback* filter = new NkOverlapFilterCallback(callback, user_data);
+        pair_cache->setOverlapFilterCallback(filter);
+    }
+    else
+    {
+        pair_cache->setOverlapFilterCallback(nullptr);
+    }
+}
+
+void nk_world_set_solver_iterations(nkWorldHandle world, int iterations)
+{
+    if (!world) return;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    dynamics_world->getSolverInfo().m_numIterations = iterations;
+}
+
+int nk_world_get_solver_iterations(nkWorldHandle world)
+{
+    if (!world) return 10;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    return dynamics_world->getSolverInfo().m_numIterations;
+}
+
+void nk_world_set_erp(nkWorldHandle world, nkReal erp)
+{
+    if (!world) return;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    dynamics_world->getSolverInfo().m_erp = erp;
+}
+
+nkReal nk_world_get_erp(nkWorldHandle world)
+{
+    if (!world) return 0.2f;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    return dynamics_world->getSolverInfo().m_erp;
+}
+
+void nk_world_set_erp2(nkWorldHandle world, nkReal erp2)
+{
+    if (!world) return;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    dynamics_world->getSolverInfo().m_erp2 = erp2;
+}
+
+nkReal nk_world_get_erp2(nkWorldHandle world)
+{
+    if (!world) return 0.2f;
+    btDiscreteDynamicsWorld* dynamics_world = static_cast<btDiscreteDynamicsWorld*>(world);
+    return dynamics_world->getSolverInfo().m_erp2;
 }
 
 void nk_world_add_softbody(nkWorldHandle world, nkSoftBodyHandle softbody)

@@ -1,7 +1,7 @@
 #include "rigidbody.h"
 #include "btBulletDynamicsCommon.h"
 
-nkRigidBodyHandle nk_rigidbody_create(nkWorldHandle world, nkShapeHandle shape, nkReal mass, nkTransform* start_transform)
+nkRigidBodyHandle nk_rigidbody_create(nkWorldHandle world, nkShapeHandle shape, nkReal mass, nkTransform* start_transform, int additional_damping)
 {
     if (!shape || !start_transform) return nullptr;
     
@@ -28,6 +28,7 @@ nkRigidBodyHandle nk_rigidbody_create(nkWorldHandle world, nkShapeHandle shape, 
     
     btDefaultMotionState* motion_state = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rb_info(mass, motion_state, collision_shape, local_inertia);
+    rb_info.m_additionalDamping = additional_damping != 0;
     btRigidBody* body = new btRigidBody(rb_info);
     
     if (world)
@@ -482,4 +483,32 @@ int nk_rigidbody_get_collision_mask(nkRigidBodyHandle body)
     if (!body) return 0;
     btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
     return rigid_body->getBroadphaseHandle()->m_collisionFilterMask;
+}
+
+void nk_rigidbody_set_ccd_motion_threshold(nkRigidBodyHandle body, nkReal threshold)
+{
+    if (!body) return;
+    btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
+    rigid_body->setCcdMotionThreshold(threshold);
+}
+
+nkReal nk_rigidbody_get_ccd_motion_threshold(nkRigidBodyHandle body)
+{
+    if (!body) return 0.0f;
+    btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
+    return rigid_body->getCcdMotionThreshold();
+}
+
+void nk_rigidbody_set_ccd_swept_sphere_radius(nkRigidBodyHandle body, nkReal radius)
+{
+    if (!body) return;
+    btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
+    rigid_body->setCcdSweptSphereRadius(radius);
+}
+
+nkReal nk_rigidbody_get_ccd_swept_sphere_radius(nkRigidBodyHandle body)
+{
+    if (!body) return 0.0f;
+    btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
+    return rigid_body->getCcdSweptSphereRadius();
 }

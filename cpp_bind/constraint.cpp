@@ -343,6 +343,20 @@ void nk_constraint_set_motor_target_cone_twist(
     cone_constraint->setMotorTarget(btQuaternion(x, y, z, w));
 }
 
+void nk_constraint_set_param(nkConstraintHandle constraint, int num, nkReal value, int axis)
+{
+    if (!constraint) return;
+    btTypedConstraint* typed_constraint = static_cast<btTypedConstraint*>(constraint);
+    typed_constraint->setParam(num, value, axis);
+}
+
+nkReal nk_constraint_get_param(nkConstraintHandle constraint, int num, int axis)
+{
+    if (!constraint) return 0.0f;
+    btTypedConstraint* typed_constraint = static_cast<btTypedConstraint*>(constraint);
+    return typed_constraint->getParam(num, axis);
+}
+
 void nk_constraint_set_breaking_impulse_threshold(nkConstraintHandle constraint, nkReal threshold)
 {
     if (!constraint) return;

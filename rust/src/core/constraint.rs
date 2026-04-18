@@ -21,6 +21,15 @@ pub enum ConstraintType {
     Unknown = 255,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(i32)]
+pub enum ConstraintParam {
+    Erp = 1,
+    StopErp = 2,
+    Cfm = 3,
+    StopCfm = 4,
+}
+
 pub struct Constraint {
     handle: NonNull<c_void>,
     constraint_type: ConstraintType,
@@ -53,6 +62,16 @@ impl Constraint {
 
     pub fn get_breaking_impulse_threshold(&self) -> Real {
         unsafe { ffi::nk_constraint_get_breaking_impulse_threshold(self.handle.as_ptr()) }
+    }
+
+    pub fn set_param(&self, param: ConstraintParam, value: Real, axis: i32) {
+        unsafe {
+            ffi::nk_constraint_set_param(self.handle.as_ptr(), param as i32, value, axis);
+        }
+    }
+
+    pub fn get_param(&self, param: ConstraintParam, axis: i32) -> Real {
+        unsafe { ffi::nk_constraint_get_param(self.handle.as_ptr(), param as i32, axis) }
     }
 }
 
@@ -752,6 +771,7 @@ pub struct ConstraintBuilder {
     spring_stiffness: [Real; 6],
     spring_damping: [Real; 6],
     cone_twist_limit: Option<(Real, Real, Real, Real, Real, Real)>,
+    stop_erp: Option<Real>,
 }
 
 impl ConstraintBuilder {
@@ -774,6 +794,7 @@ impl ConstraintBuilder {
             spring_stiffness: [0.0; 6],
             spring_damping: [0.0; 6],
             cone_twist_limit: None,
+            stop_erp: None,
         }
     }
 
@@ -861,6 +882,11 @@ impl ConstraintBuilder {
         relaxation_factor: Real,
     ) -> Self {
         self.cone_twist_limit = Some((swing_span1, swing_span2, twist_span, softness, bias_factor, relaxation_factor));
+        self
+    }
+
+    pub fn stop_erp(mut self, erp: Real) -> Self {
+        self.stop_erp = Some(erp);
         self
     }
 
@@ -968,6 +994,14 @@ impl ConstraintBuilder {
         if self.breaking_impulse_threshold < f32::MAX {
             unsafe {
                 ffi::nk_constraint_set_breaking_impulse_threshold(constraint_handle, self.breaking_impulse_threshold);
+            }
+        }
+
+        if let Some(erp) = self.stop_erp {
+            unsafe {
+                for axis in 0..6 {
+                    ffi::nk_constraint_set_param(constraint_handle, ConstraintParam::StopErp as i32, erp, axis);
+                }
             }
         }
 

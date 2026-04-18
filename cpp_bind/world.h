@@ -26,6 +26,13 @@ void nk_world_set_contact_breaking_threshold(nkWorldHandle world, nkReal thresho
 nkReal nk_world_get_contact_breaking_threshold(nkWorldHandle world);
 void nk_world_add_rigid_body_with_filter(nkWorldHandle world, nkRigidBodyHandle body, int group, int mask);
 
+void nk_world_set_solver_iterations(nkWorldHandle world, int iterations);
+int nk_world_get_solver_iterations(nkWorldHandle world);
+void nk_world_set_erp(nkWorldHandle world, nkReal erp);
+nkReal nk_world_get_erp(nkWorldHandle world);
+void nk_world_set_erp2(nkWorldHandle world, nkReal erp2);
+nkReal nk_world_get_erp2(nkWorldHandle world);
+
 typedef struct nkContactPoint
 {
     nkVector3 position;

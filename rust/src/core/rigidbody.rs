@@ -346,6 +346,26 @@ impl RigidBody {
     pub fn get_collision_mask(&self) -> i32 {
         unsafe { ffi::nk_rigidbody_get_collision_mask(self.handle.as_ptr()) }
     }
+
+    pub fn set_ccd_motion_threshold(&self, threshold: Real) {
+        unsafe {
+            ffi::nk_rigidbody_set_ccd_motion_threshold(self.handle.as_ptr(), threshold);
+        }
+    }
+
+    pub fn get_ccd_motion_threshold(&self) -> Real {
+        unsafe { ffi::nk_rigidbody_get_ccd_motion_threshold(self.handle.as_ptr()) }
+    }
+
+    pub fn set_ccd_swept_sphere_radius(&self, radius: Real) {
+        unsafe {
+            ffi::nk_rigidbody_set_ccd_swept_sphere_radius(self.handle.as_ptr(), radius);
+        }
+    }
+
+    pub fn get_ccd_swept_sphere_radius(&self) -> Real {
+        unsafe { ffi::nk_rigidbody_get_ccd_swept_sphere_radius(self.handle.as_ptr()) }
+    }
 }
 
 impl Drop for RigidBody {
@@ -379,6 +399,7 @@ pub struct RigidBodyBuilder {
     linear_sleeping_threshold: Real,
     angular_sleeping_threshold: Real,
     disable_deactivation: bool,
+    additional_damping_enabled: bool,
 }
 
 impl RigidBodyBuilder {
@@ -401,6 +422,7 @@ impl RigidBodyBuilder {
             linear_sleeping_threshold: 0.8,
             angular_sleeping_threshold: 1.0,
             disable_deactivation: false,
+            additional_damping_enabled: false,
         }
     }
 
@@ -497,6 +519,11 @@ impl RigidBodyBuilder {
         self
     }
 
+    pub fn additional_damping(mut self, enable: bool) -> Self {
+        self.additional_damping_enabled = enable;
+        self
+    }
+
     pub fn build(self) -> Result<RigidBody, &'static str> {
         let shape = self.shape.ok_or("Shape is required")?;
         
@@ -511,6 +538,7 @@ impl RigidBodyBuilder {
                 shape.handle(),
                 self.mass,
                 &ffi_transform,
+                if self.additional_damping_enabled { 1 } else { 0 },
             )
         };
 

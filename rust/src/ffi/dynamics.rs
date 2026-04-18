@@ -6,6 +6,7 @@ extern "C" {
         shape: nkShapeHandle,
         mass: nkReal,
         start_transform: *const nkTransform,
+        additional_damping: i32,
     ) -> nkRigidBodyHandle;
     pub fn nk_rigidbody_destroy(world: nkWorldHandle, body: nkRigidBodyHandle);
     pub fn nk_rigidbody_get_transform(body: nkRigidBodyHandle, out_transform: *mut nkTransform);
@@ -65,4 +66,8 @@ extern "C" {
     pub fn nk_rigidbody_get_collision_group(body: nkRigidBodyHandle) -> i32;
     pub fn nk_rigidbody_set_collision_mask(body: nkRigidBodyHandle, mask: i32);
     pub fn nk_rigidbody_get_collision_mask(body: nkRigidBodyHandle) -> i32;
+    pub fn nk_rigidbody_set_ccd_motion_threshold(body: nkRigidBodyHandle, threshold: nkReal);
+    pub fn nk_rigidbody_get_ccd_motion_threshold(body: nkRigidBodyHandle) -> nkReal;
+    pub fn nk_rigidbody_set_ccd_swept_sphere_radius(body: nkRigidBodyHandle, radius: nkReal);
+    pub fn nk_rigidbody_get_ccd_swept_sphere_radius(body: nkRigidBodyHandle) -> nkReal;
 }

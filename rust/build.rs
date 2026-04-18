@@ -136,7 +136,7 @@ fn compile_bullet_core(build: &mut cc::Build, src_dir: &Path, is_msvc: bool, ext
     }
 
     if dynamics {
-        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, parallel);
+        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, parallel, inverse_dynamics);
     }
 
     if softbody {
@@ -347,6 +347,7 @@ fn compile_bullet_dynamics(
     character: bool,
     multibody: bool,
     parallel: bool,
+    inverse_dynamics: bool,
 ) {
     let dynamics_dir = src_dir.join("BulletDynamics");
     build.include(&dynamics_dir);
@@ -435,6 +436,7 @@ fn compile_bullet_dynamics(
             build.file(multibody_dir.join(file));
         }
     }
+
 }
 
 fn compile_bullet_softbody(build: &mut cc::Build, src_dir: &Path) {
@@ -509,6 +511,7 @@ fn compile_cpp_bind(build: &mut cc::Build, cpp_bind_dir: &Path) {
     let softbody = env::var("CARGO_FEATURE_SOFTBODY").is_ok();
     let vehicle = env::var("CARGO_FEATURE_VEHICLE").is_ok();
     let character = env::var("CARGO_FEATURE_CHARACTER").is_ok();
+    let multibody = env::var("CARGO_FEATURE_MULTIBODY").is_ok();
     let inverse_dynamics = env::var("CARGO_FEATURE_INVERSE_DYNAMICS").is_ok();
     let hacd = env::var("CARGO_FEATURE_HACD").is_ok();
     let vhacd = env::var("CARGO_FEATURE_VHACD").is_ok();
@@ -538,11 +541,14 @@ fn compile_cpp_bind(build: &mut cc::Build, cpp_bind_dir: &Path) {
         files.push("character.cpp");
     }
 
+    if multibody || inverse_dynamics {
+        files.push("multibody_constraint.cpp");
+        files.push("mlcp_solver.cpp");
+    }
+
     if inverse_dynamics {
         files.push("inverse_dynamics.cpp");
         files.push("id_utils.cpp");
-        files.push("multibody_constraint.cpp");
-        files.push("mlcp_solver.cpp");
     }
     if hacd {
         files.push("hacd.cpp");
@@ -657,7 +663,7 @@ fn compile_bullet_core_wasm(build: &mut cc::Build, src_dir: &Path) {
     }
 
     if dynamics {
-        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, false);
+        compile_bullet_dynamics(build, src_dir, vehicle, character, multibody, false, inverse_dynamics);
     }
 
     if softbody {

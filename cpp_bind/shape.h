@@ -10,6 +10,7 @@ extern "C" {
 nkShapeHandle nk_shape_create_box(nkReal half_extent_x, nkReal half_extent_y, nkReal half_extent_z);
 nkShapeHandle nk_shape_create_sphere(nkReal radius);
 nkShapeHandle nk_shape_create_capsule(nkReal radius, nkReal height);
+nkShapeHandle nk_shape_create_capsule_z(nkReal radius, nkReal height);
 nkShapeHandle nk_shape_create_cylinder(nkReal radius, nkReal height);
 nkShapeHandle nk_shape_create_cone(nkReal radius, nkReal height);
 nkShapeHandle nk_shape_create_plane(nkReal normal_x, nkReal normal_y, nkReal normal_z, nkReal constant);

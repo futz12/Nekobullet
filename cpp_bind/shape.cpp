@@ -20,6 +20,12 @@ nkShapeHandle nk_shape_create_capsule(nkReal radius, nkReal height)
     return static_cast<nkShapeHandle>(shape);
 }
 
+nkShapeHandle nk_shape_create_capsule_z(nkReal radius, nkReal height)
+{
+    btCollisionShape* shape = new btCapsuleShapeZ(radius, height);
+    return static_cast<nkShapeHandle>(shape);
+}
+
 nkShapeHandle nk_shape_create_cylinder(nkReal radius, nkReal height)
 {
     btCollisionShape* shape = new btCylinderShape(btVector3(radius, height * 0.5f, radius));

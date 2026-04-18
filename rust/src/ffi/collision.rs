@@ -4,6 +4,7 @@ extern "C" {
     pub fn nk_shape_create_box(half_extent_x: nkReal, half_extent_y: nkReal, half_extent_z: nkReal) -> nkShapeHandle;
     pub fn nk_shape_create_sphere(radius: nkReal) -> nkShapeHandle;
     pub fn nk_shape_create_capsule(radius: nkReal, height: nkReal) -> nkShapeHandle;
+    pub fn nk_shape_create_capsule_z(radius: nkReal, height: nkReal) -> nkShapeHandle;
     pub fn nk_shape_create_cylinder(radius: nkReal, height: nkReal) -> nkShapeHandle;
     pub fn nk_shape_create_cone(radius: nkReal, height: nkReal) -> nkShapeHandle;
     pub fn nk_shape_create_plane(normal_x: nkReal, normal_y: nkReal, normal_z: nkReal, constant: nkReal) -> nkShapeHandle;
@@ -64,6 +65,10 @@ pub unsafe fn shape_create_sphere(radius: nkReal) -> nkShapeHandle {
 
 pub unsafe fn shape_create_capsule(radius: nkReal, height: nkReal) -> nkShapeHandle {
     nk_shape_create_capsule(radius, height)
+}
+
+pub unsafe fn shape_create_capsule_z(radius: nkReal, height: nkReal) -> nkShapeHandle {
+    nk_shape_create_capsule_z(radius, height)
 }
 
 pub unsafe fn shape_create_cylinder(radius: nkReal, height: nkReal) -> nkShapeHandle {

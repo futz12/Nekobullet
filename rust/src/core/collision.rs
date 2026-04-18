@@ -25,6 +25,7 @@ pub enum CollisionShape {
     Box { half_extents: Vec3 },
     Sphere { radius: Real },
     Capsule { radius: Real, height: Real },
+    CapsuleZ { radius: Real, height: Real },
     Cylinder { half_extents: Vec3 },
     Cone { radius: Real, height: Real },
     Plane { normal: Vec3, constant: Real },
@@ -70,6 +71,14 @@ impl ShapeHandle {
         let handle = unsafe { ffi::nk_shape_create_capsule(radius, height) };
         Self {
             handle: NonNull::new(handle).expect("Failed to create capsule shape"),
+            shape_type: CollisionShapeType::Capsule,
+        }
+    }
+
+    pub fn new_capsule_z(radius: Real, height: Real) -> Self {
+        let handle = unsafe { ffi::nk_shape_create_capsule_z(radius, height) };
+        Self {
+            handle: NonNull::new(handle).expect("Failed to create capsule z shape"),
             shape_type: CollisionShapeType::Capsule,
         }
     }
@@ -312,6 +321,11 @@ impl CollisionShapeBuilder {
         self
     }
 
+    pub fn capsule_z(mut self, radius: Real, height: Real) -> Self {
+        self.shape = Some(CollisionShape::CapsuleZ { radius, height });
+        self
+    }
+
     pub fn cylinder(mut self, half_extents: Vec3) -> Self {
         self.shape = Some(CollisionShape::Cylinder { half_extents });
         self
@@ -366,6 +380,7 @@ impl CollisionShapeBuilder {
             CollisionShape::Box { half_extents } => Some(ShapeHandle::new_box(half_extents)),
             CollisionShape::Sphere { radius } => Some(ShapeHandle::new_sphere(radius)),
             CollisionShape::Capsule { radius, height } => Some(ShapeHandle::new_capsule(radius, height)),
+            CollisionShape::CapsuleZ { radius, height } => Some(ShapeHandle::new_capsule_z(radius, height)),
             CollisionShape::Cylinder { half_extents } => Some(ShapeHandle::new_cylinder(half_extents)),
             CollisionShape::Cone { radius, height } => Some(ShapeHandle::new_cone(radius, height)),
             CollisionShape::Plane { normal, constant } => Some(ShapeHandle::new_plane(normal, constant)),

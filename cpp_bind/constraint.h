@@ -84,6 +84,8 @@ void nk_constraint_set_motor_target_cone_twist(
     nkConstraintHandle constraint,
     nkReal x, nkReal y, nkReal z, nkReal w);
 
+void nk_constraint_set_param(nkConstraintHandle constraint, int num, nkReal value, int axis);
+nkReal nk_constraint_get_param(nkConstraintHandle constraint, int num, int axis);
 void nk_constraint_set_breaking_impulse_threshold(nkConstraintHandle constraint, nkReal threshold);
 nkReal nk_constraint_get_breaking_impulse_threshold(nkConstraintHandle constraint);
 void nk_constraint_set_enabled(nkConstraintHandle constraint, int enabled);

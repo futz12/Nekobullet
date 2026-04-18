@@ -162,6 +162,8 @@ extern "C" {
         constraint: nkConstraintHandle,
         x: nkReal, y: nkReal, z: nkReal, w: nkReal);
     
+    pub fn nk_constraint_set_param(constraint: nkConstraintHandle, num: i32, value: nkReal, axis: i32);
+    pub fn nk_constraint_get_param(constraint: nkConstraintHandle, num: i32, axis: i32) -> nkReal;
     pub fn nk_constraint_set_breaking_impulse_threshold(constraint: nkConstraintHandle, threshold: nkReal);
     pub fn nk_constraint_get_breaking_impulse_threshold(constraint: nkConstraintHandle) -> nkReal;
     pub fn nk_constraint_set_enabled(constraint: nkConstraintHandle, enabled: i32);
@@ -176,6 +178,13 @@ extern "C" {
     
     pub fn nk_world_set_contact_callback(world: nkWorldHandle, callback: Option<nkContactCallback>, user_data: *mut std::ffi::c_void);
     pub fn nk_world_set_collision_filter(world: nkWorldHandle, callback: Option<nkCollisionFilterCallback>, user_data: *mut std::ffi::c_void);
+    
+    pub fn nk_world_set_solver_iterations(world: nkWorldHandle, iterations: i32);
+    pub fn nk_world_get_solver_iterations(world: nkWorldHandle) -> i32;
+    pub fn nk_world_set_erp(world: nkWorldHandle, erp: nkReal);
+    pub fn nk_world_get_erp(world: nkWorldHandle) -> nkReal;
+    pub fn nk_world_set_erp2(world: nkWorldHandle, erp2: nkReal);
+    pub fn nk_world_get_erp2(world: nkWorldHandle) -> nkReal;
     
     pub fn nk_ghost_create() -> nkGhostObjectHandle;
     pub fn nk_ghost_destroy(ghost: nkGhostObjectHandle);

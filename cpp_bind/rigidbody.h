@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-nkRigidBodyHandle nk_rigidbody_create(nkWorldHandle world, nkShapeHandle shape, nkReal mass, nkTransform* start_transform);
+nkRigidBodyHandle nk_rigidbody_create(nkWorldHandle world, nkShapeHandle shape, nkReal mass, nkTransform* start_transform, int additional_damping);
 void nk_rigidbody_destroy(nkWorldHandle world, nkRigidBodyHandle body);
 
 void nk_rigidbody_get_transform(nkRigidBodyHandle body, nkTransform* out_transform);
@@ -71,6 +71,11 @@ void nk_rigidbody_set_collision_group(nkRigidBodyHandle body, int group);
 int nk_rigidbody_get_collision_group(nkRigidBodyHandle body);
 void nk_rigidbody_set_collision_mask(nkRigidBodyHandle body, int mask);
 int nk_rigidbody_get_collision_mask(nkRigidBodyHandle body);
+
+void nk_rigidbody_set_ccd_motion_threshold(nkRigidBodyHandle body, nkReal threshold);
+nkReal nk_rigidbody_get_ccd_motion_threshold(nkRigidBodyHandle body);
+void nk_rigidbody_set_ccd_swept_sphere_radius(nkRigidBodyHandle body, nkReal radius);
+nkReal nk_rigidbody_get_ccd_swept_sphere_radius(nkRigidBodyHandle body);
 
 #ifdef __cplusplus
 }

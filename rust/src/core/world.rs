@@ -502,6 +502,36 @@ impl PhysicsWorld {
         }
     }
 
+    pub fn set_solver_iterations(&self, iterations: i32) {
+        unsafe {
+            ffi::nk_world_set_solver_iterations(self.handle.as_ptr(), iterations);
+        }
+    }
+
+    pub fn get_solver_iterations(&self) -> i32 {
+        unsafe { ffi::nk_world_get_solver_iterations(self.handle.as_ptr()) }
+    }
+
+    pub fn set_erp(&self, erp: Real) {
+        unsafe {
+            ffi::nk_world_set_erp(self.handle.as_ptr(), erp);
+        }
+    }
+
+    pub fn get_erp(&self) -> Real {
+        unsafe { ffi::nk_world_get_erp(self.handle.as_ptr()) }
+    }
+
+    pub fn set_erp2(&self, erp2: Real) {
+        unsafe {
+            ffi::nk_world_set_erp2(self.handle.as_ptr(), erp2);
+        }
+    }
+
+    pub fn get_erp2(&self) -> Real {
+        unsafe { ffi::nk_world_get_erp2(self.handle.as_ptr()) }
+    }
+
     fn find_body_handle(&self, body_ptr: *mut c_void) -> Option<RigidBodyHandle> {
         for (handle, body) in self.bodies.iter() {
             if body.handle() == body_ptr {
@@ -511,40 +541,47 @@ impl PhysicsWorld {
         None
     }
 
+    #[cfg(feature = "softbody")]
     pub fn add_softbody(&self, softbody: &super::softbody::SoftBody) {
         unsafe {
             ffi::nk_world_add_softbody(self.handle.as_ptr(), softbody.handle());
         }
     }
 
+    #[cfg(feature = "softbody")]
     pub fn remove_softbody(&self, softbody: &super::softbody::SoftBody) {
         unsafe {
             ffi::nk_world_remove_softbody(self.handle.as_ptr(), softbody.handle());
         }
     }
 
+    #[cfg(feature = "softbody")]
     pub fn num_softbodies(&self) -> i32 {
         unsafe { ffi::nk_world_get_num_softbodies(self.handle.as_ptr()) }
     }
 
+    #[cfg(feature = "vehicle")]
     pub fn add_vehicle(&self, vehicle: &super::vehicle::Vehicle) {
         unsafe {
             ffi::nk_world_add_vehicle(self.handle.as_ptr(), vehicle.handle());
         }
     }
 
+    #[cfg(feature = "vehicle")]
     pub fn remove_vehicle(&self, vehicle: &super::vehicle::Vehicle) {
         unsafe {
             ffi::nk_world_remove_vehicle(self.handle.as_ptr(), vehicle.handle());
         }
     }
 
+    #[cfg(feature = "character")]
     pub fn add_character(&self, character: &super::character::CharacterController) {
         unsafe {
             ffi::nk_world_add_character(self.handle.as_ptr(), character.handle());
         }
     }
 
+    #[cfg(feature = "character")]
     pub fn remove_character(&self, character: &super::character::CharacterController) {
         unsafe {
             ffi::nk_world_remove_character(self.handle.as_ptr(), character.handle());
