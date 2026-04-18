@@ -1,144 +1,161 @@
-[![Travis Build Status](https://api.travis-ci.org/bulletphysics/bullet3.png?branch=master)](https://travis-ci.org/bulletphysics/bullet3)
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6sly9uxajr6xsstq)](https://ci.appveyor.com/project/erwincoumans/bullet3)
+# Nekobullet
 
-# Bullet Physics SDK
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
+Nekobullet 是 [Bullet Physics](https://pybullet.org/) 物理引擎的 Rust 绑定库，提供高性能的 3D 物理模拟功能。
 
-![PyBullet](https://pybullet.org/wordpress/wp-content/uploads/2019/03/cropped-pybullet.png)
+## 特性
 
-## Issues ##
-The Issue tracker was flooded with support questions and is closed until it is cleaned up. Use the [PyBullet forums](http://pybullet.org) to discuss with others.
+- **完整的物理模拟**：支持刚体、软体、约束、车辆、角色控制器等
+- **高性能**：基于 Bullet Physics 的高效 C++ 实现
+- **安全封装**：提供安全的 Rust API，同时保持底层性能
+- **跨平台**：支持原生平台和 WebAssembly
+- **100% API 覆盖**：完整绑定 Bullet Physics 核心功能
 
-## PyBullet ##
-It is highly recommended to use PyBullet Python bindings for improved support for robotics, reinforcement learning and VR. Use pip install pybullet and checkout the [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
+## 模块
 
-Installation is simple:
+### 核心模块
+
+| 模块 | 描述 |
+|------|------|
+| PhysicsWorld | 物理世界，管理所有物理对象和模拟 |
+| RigidBody | 刚体，用于模拟固体物体 |
+| CollisionShape | 碰撞形状，定义物体的碰撞边界 |
+| Constraint | 约束，限制物体之间的相对运动 |
+
+### 高级功能
+
+| 模块 | 描述 |
+|------|------|
+| SoftBody | 软体，模拟可变形物体 |
+| Vehicle | 车辆，模拟轮式车辆 |
+| CharacterController | 角色控制器，用于游戏角色移动 |
+| GhostObject | Ghost 对象，用于碰撞检测而不产生物理响应 |
+| GImpact | GImpact 形状，用于动态三角形网格碰撞 |
+| HACD/VHACD | 凸分解，将凹网格分解为凸部件 |
+| InverseDynamics | 逆动力学，计算关节力矩 |
+| MLCPSolver | MLCP 求解器，高级数值求解 |
+| ReducedDeformableBody | 简化软体，基于模态的软体模拟 |
+| MultiBodyConstraint | 多体约束，Featherstone 算法约束 |
+
+## 快速开始
+
+### 安装
+
+在 `Cargo.toml` 中添加：
+
+```toml
+[dependencies]
+nekobullet = "0.1"
 ```
-pip3 install pybullet --upgrade --user
-python3 -m pybullet_envs.examples.enjoy_TF_AntBulletEnv_v0_2017may
-python3 -m pybullet_envs.examples.enjoy_TF_HumanoidFlagrunHarderBulletEnv_v1_2017jul
-python3 -m pybullet_envs.deep_mimic.testrl --arg_file run_humanoid3d_backflip_args.txt
-```
 
-If you use PyBullet in your research, please cite it like this:
+### 基本示例
 
-```
-@MISC{coumans2021,
-author =   {Erwin Coumans and Yunfei Bai},
-title =    {PyBullet, a Python module for physics simulation for games, robotics and machine learning},
-howpublished = {\url{http://pybullet.org}},
-year = {2016--2021}
+```rust
+use nekobullet::*;
+
+fn main() {
+    // 创建物理世界
+    let mut world = PhysicsWorld::new();
+    world.set_gravity(Vec3::new(0.0, -9.81, 0.0));
+
+    // 创建碰撞形状
+    let shape = CollisionShapeBuilder::new()
+        .box_shape(Vec3::new(1.0, 1.0, 1.0))
+        .build()
+        .unwrap();
+
+    // 创建刚体
+    let body = RigidBodyBuilder::new()
+        .shape(shape)
+        .mass(1.0)
+        .position(Vec3::new(0.0, 10.0, 0.0))
+        .build()
+        .unwrap();
+
+    // 添加到世界
+    let handle = world.add_rigid_body(body);
+
+    // 模拟
+    for _ in 0..60 {
+        world.step(1.0 / 60.0);
+    }
+
+    // 获取位置
+    let pos = world.get_rigid_body(handle).unwrap().get_position();
+    println!("Position: {:?}", pos);
 }
 ```
 
-## Requirements for Bullet Physics C++
+## 文档
 
-A C++ compiler for C++ 2003. The library is tested on Windows, Linux, Mac OSX, iOS, Android,
-but should likely work on any platform with C++ compiler. 
-Some optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
+完整文档位于 `rust/docs/` 目录：
 
-## Contributors and Coding Style information
+- [快速入门指南](rust/docs/quickstart.md)
+- [类型系统](rust/docs/types.md)
+- [核心模块](rust/docs/core/README.md)
+- [高级功能](rust/docs/advanced/README.md)
+- [API 参考](rust/docs/api/README.md)
 
-https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/edit
+## 构建
 
-## Requirements for experimental OpenCL GPGPU support
+### 原生平台
 
-The entire collision detection and rigid body dynamics can be executed on the GPU.
-
-A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or better.
-We succesfully tested the software under Windows, Linux and Mac OSX.
-The software currently doesn't work on OpenCL CPU devices. It might run
-on a laptop GPU but performance will not likely be very good. Note that
-often an OpenCL drivers fails to compile a kernel. Some unit tests exist to
-track down the issue, but more work is required to cover all OpenCL kernels.
-
-## License
-
-All source code files are licensed under the permissive zlib license
-(http://opensource.org/licenses/Zlib) unless marked differently in a particular folder/file.
-
-## Build instructions for Bullet using vcpkg
-
-You can download and install Bullet using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
-
-    git clone https://github.com/Microsoft/vcpkg.git
-    cd vcpkg
-    ./bootstrap-vcpkg.sh
-    ./vcpkg integrate install
-    ./vcpkg install bullet3
-
-The Bullet port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
-
-## Build instructions for Bullet using premake. You can also use cmake instead.
-
-**Windows**
-
-Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0_Bullet3Solution.sln
-When asked, convert the projects to a newer version of Visual Studio.
-If you installed Python in the C:\ root directory, the batch file should find it automatically.
-Otherwise, edit this batch file to choose where Python include/lib directories are located.
-
-**Windows Virtual Reality sandbox for HTC Vive and Oculus Rift**
-
-Build and run the App_SharedMemoryPhysics_VR project, preferably in Release/optimized build.
-You can connect from Python pybullet to the sandbox using:
-
-```
-import pybullet as p
-p.connect(p.SHARED_MEMORY) #or (p.TCP, "localhost", 6667) or (p.UDP, "192.168.86.10",1234)
+```bash
+cd Nekobullet/rust
+cargo build --release
 ```
 
-**Linux and Mac OSX gnu make**
+### WebAssembly
 
-Make sure gcc and cmake is installed (`sudo apt-get install build-essential` and `sudo apt-get install cmake` for Linux, `brew install cmake` for Mac, or https://cmake.org)
-
-In a terminal type:
-```
-./build_cmake_pybullet_double.sh
-```
-This script will invoke cmake and build in the build_cmake directory. You can find pybullet in Bullet/examples/pybullet.
-The BulletExampleBrowser binary will be in Bullet/examples/ExampleBrowser.
-
-You can also build Bullet using premake. There are premake executables in the build3 folder.
-Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
-Using premake:
-```
-cd build3
-./premake4_linux --double gmake
-./premake4_linux64 --double gmake
-./premake4_osx --double --enable_pybullet gmake
-```
-Then
-```
-cd gmake
-make
+```bash
+cd Nekobullet/rust
+cargo build --target wasm32-unknown-unknown --release
 ```
 
-Note that on Linux, you need to use cmake to build pybullet, since the compiler has issues of mixing shared and static libraries.
-
-**Mac OSX Xcode**
-	
-Click on build3/xcode4.command or in a terminal window execute
-```	
-./premake_osx xcode4
-```
-## Usage
-
-The App_ExampleBrowser executables will be located in the bin folder.
-You can just run it though a terminal/command prompt, or by clicking it.
-
+## 项目结构
 
 ```
-[--start_demo_name="Demo Name"]     Start with a selected demo  
-[--mp4=moviename.mp4]               Create a mp4 movie of the window, requires ffmpeg installed
-[--mouse_move_multiplier=0.400000]  Set the mouse move sensitivity
-[--mouse_wheel_multiplier=0.01]     Set the mouse wheel sensitivity
-[--background_color_red= 0.9]       Set the red component for background color. Same for green and blue
-[--fixed_timestep= 0.0]             Use either a real-time delta time (0.0) or a fixed step size (0.016666)
+Nekobullet/
+├── bullet3/              # Bullet Physics 源码
+├── cpp_bind/             # C++ 绑定层
+├── rust/                 # Rust 绑定
+│   ├── src/
+│   │   ├── ffi/          # FFI 声明
+│   │   └── core/         # Rust 安全封装
+│   └── docs/             # 文档
+└── Extras/               # Bullet 扩展模块
+    ├── ConvexDecomposition/
+    ├── GIMPACTUtils/
+    ├── HACD/
+    ├── InverseDynamics/
+    └── VHACD/
 ```
 
-You can use mouse picking to grab objects. When holding the ALT or CONTROL key, you have Maya style camera mouse controls.
-Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
+## 支持的碰撞形状
 
-Check out the docs folder and the Bullet physics forums for further information.
+- **基本形状**：Box、Sphere、Capsule、Cylinder、Cone、Plane
+- **复杂形状**：ConvexHull、Compound、TriangleMesh、Heightfield
+- **动态形状**：GImpact（动态凹网格）
+
+## 支持的约束类型
+
+- Point2Point（点对点）
+- Hinge（铰链）
+- Slider（滑动）
+- Generic6Dof（6自由度）
+- Generic6DofSpring（带弹簧的6自由度）
+- ConeTwist（圆锥扭转）
+- Universal（万向节）
+- Hinge2（双铰链）
+- Gear（齿轮）
+
+## 许可证
+
+本项目采用 MIT 许可证。Bullet Physics 采用 zlib 许可证。
+
+## 致谢
+
+- [Bullet Physics](https://github.com/bulletphysics/bullet3) - 物理引擎
+- [glam](https://github.com/bitshifter/glam-rs) - 数学库
