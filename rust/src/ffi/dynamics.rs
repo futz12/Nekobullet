@@ -70,4 +70,5 @@ extern "C" {
     pub fn nk_rigidbody_get_ccd_motion_threshold(body: nkRigidBodyHandle) -> nkReal;
     pub fn nk_rigidbody_set_ccd_swept_sphere_radius(body: nkRigidBodyHandle, radius: nkReal);
     pub fn nk_rigidbody_get_ccd_swept_sphere_radius(body: nkRigidBodyHandle) -> nkReal;
+    pub fn nk_rigidbody_set_no_contact_response(body: nkRigidBodyHandle, no_contact_response: i32);
 }

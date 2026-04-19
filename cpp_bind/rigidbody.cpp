@@ -512,3 +512,17 @@ nkReal nk_rigidbody_get_ccd_swept_sphere_radius(nkRigidBodyHandle body)
     btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
     return rigid_body->getCcdSweptSphereRadius();
 }
+
+void nk_rigidbody_set_no_contact_response(nkRigidBodyHandle body, int no_contact_response)
+{
+    if (!body) return;
+    btRigidBody* rigid_body = static_cast<btRigidBody*>(body);
+    if (no_contact_response)
+    {
+        rigid_body->setCollisionFlags(rigid_body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+    }
+    else
+    {
+        rigid_body->setCollisionFlags(rigid_body->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
+    }
+}

@@ -4,7 +4,7 @@ use std::ffi::c_void;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use super::constraint::ConstraintBuilder;
+use super::constraint::{Constraint, ConstraintBuilder};
 use super::ghost::GhostObject;
 use super::rigidbody::{RigidBody, RigidBodyBuilder};
 use super::types::{Real, Transform, Vec3};
@@ -391,16 +391,22 @@ impl PhysicsWorld {
 
     pub fn create_constraint(&mut self, builder: ConstraintBuilder) -> Option<ConstraintHandle> {
         let constraint = builder.build().ok()?;
-        
+
         let handle = self.next_constraint_handle.get();
         self.next_constraint_handle.set(handle + 1);
-        
+
         unsafe {
             ffi::nk_world_add_constraint(self.handle.as_ptr(), constraint, 1);
         }
-        
+
         self.constraints.insert(handle, unsafe { NonNull::new_unchecked(constraint) });
         Some(handle)
+    }
+
+    pub fn get_constraint(&self, handle: ConstraintHandle) -> Option<Constraint> {
+        self.constraints.get(&handle).map(|ptr| unsafe {
+            Constraint::from_raw(ptr.as_ptr(), crate::core::constraint::ConstraintType::Generic6DofSpring)
+        })
     }
 
     pub fn add_ghost(&mut self, ghost: GhostObject) -> GhostHandle {

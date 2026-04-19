@@ -77,6 +77,8 @@ nkReal nk_rigidbody_get_ccd_motion_threshold(nkRigidBodyHandle body);
 void nk_rigidbody_set_ccd_swept_sphere_radius(nkRigidBodyHandle body, nkReal radius);
 nkReal nk_rigidbody_get_ccd_swept_sphere_radius(nkRigidBodyHandle body);
 
+void nk_rigidbody_set_no_contact_response(nkRigidBodyHandle body, int no_contact_response);
+
 #ifdef __cplusplus
 }
 #endif

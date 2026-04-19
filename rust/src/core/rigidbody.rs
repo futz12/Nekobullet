@@ -236,6 +236,12 @@ impl RigidBody {
         }
     }
 
+    pub fn set_no_contact_response(&self, no_contact_response: bool) {
+        unsafe {
+            ffi::nk_rigidbody_set_no_contact_response(self.handle.as_ptr(), if no_contact_response { 1 } else { 0 });
+        }
+    }
+
     pub fn get_linear_sleeping_threshold(&self) -> Real {
         unsafe { ffi::nk_rigidbody_get_linear_sleeping_threshold(self.handle.as_ptr()) }
     }
@@ -400,6 +406,7 @@ pub struct RigidBodyBuilder {
     angular_sleeping_threshold: Real,
     disable_deactivation: bool,
     additional_damping_enabled: bool,
+    no_contact_response: bool,
 }
 
 impl RigidBodyBuilder {
@@ -423,6 +430,7 @@ impl RigidBodyBuilder {
             angular_sleeping_threshold: 1.0,
             disable_deactivation: false,
             additional_damping_enabled: false,
+            no_contact_response: false,
         }
     }
 
@@ -524,6 +532,11 @@ impl RigidBodyBuilder {
         self
     }
 
+    pub fn no_contact_response(mut self, enable: bool) -> Self {
+        self.no_contact_response = enable;
+        self
+    }
+
     pub fn build(self) -> Result<RigidBody, &'static str> {
         let shape = self.shape.ok_or("Shape is required")?;
         
@@ -565,10 +578,15 @@ impl RigidBodyBuilder {
             MotionType::Dynamic => {}
         }
         
+        body.set_sleeping_thresholds(self.linear_sleeping_threshold, self.angular_sleeping_threshold);
         body.set_activation_state(self.activation_state);
 
         if self.disable_deactivation {
             body.set_activation_state(ActivationState::DisableDeactivation);
+        }
+
+        if self.no_contact_response {
+            body.set_no_contact_response(true);
         }
 
         Ok(body)

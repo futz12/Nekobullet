@@ -33,7 +33,7 @@ pub mod vhacd;
 
 pub use collision::{CollisionShape, CollisionShapeBuilder, CollisionShapeType, ShapeHandle};
 pub use constraint::{
-    ConstraintBuilder, ConstraintType, 
+    Constraint, ConstraintBuilder, ConstraintType,
     Generic6DofConstraint, Generic6DofSpringConstraint, ConeTwistConstraint,
     UniversalConstraint, Hinge2Constraint, GearConstraint, Generic6DofSpring2Constraint,
     HingeConstraint, FixedConstraint, SliderConstraint,

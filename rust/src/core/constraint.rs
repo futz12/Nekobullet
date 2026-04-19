@@ -55,6 +55,13 @@ pub struct Constraint {
 }
 
 impl Constraint {
+    pub fn from_raw(ptr: *mut c_void, ctype: ConstraintType) -> Self {
+        Self {
+            handle: unsafe { NonNull::new_unchecked(ptr) },
+            constraint_type: ctype,
+        }
+    }
+
     pub fn handle(&self) -> *mut c_void {
         self.handle.as_ptr()
     }
@@ -896,6 +903,13 @@ impl ConstraintBuilder {
         self
     }
 
+    pub fn generic_6dof_spring2(mut self, body_a: *mut c_void, body_b: *mut c_void) -> Self {
+        self.constraint_type = ConstraintType::Generic6DofSpring2;
+        self.body_a = Some(body_a);
+        self.body_b = Some(body_b);
+        self
+    }
+
     pub fn cone_twist(mut self, body_a: *mut c_void, body_b: *mut c_void) -> Self {
         self.constraint_type = ConstraintType::ConeTwist;
         self.body_a = Some(body_a);
@@ -1018,7 +1032,7 @@ impl ConstraintBuilder {
             ConstraintType::Generic6DofSpring => {
                 let nk_frame_a = nkTransform::from_core_transform(&self.frame_a);
                 let nk_frame_b = nkTransform::from_core_transform(&self.frame_b);
-                
+
                 let handle = unsafe {
                     ffi::nk_constraint_create_generic_6dof_spring(
                         body_a,
@@ -1028,14 +1042,46 @@ impl ConstraintBuilder {
                         if self.use_linear_reference_frame_a { 1 } else { 0 },
                     )
                 };
-                
+
                 if !handle.is_null() {
                     unsafe {
                         ffi::nk_constraint_set_linear_lower_limit(handle, self.linear_lower_limit.x, self.linear_lower_limit.y, self.linear_lower_limit.z);
                         ffi::nk_constraint_set_linear_upper_limit(handle, self.linear_upper_limit.x, self.linear_upper_limit.y, self.linear_upper_limit.z);
                         ffi::nk_constraint_set_angular_lower_limit(handle, self.angular_lower_limit.x, self.angular_lower_limit.y, self.angular_lower_limit.z);
                         ffi::nk_constraint_set_angular_upper_limit(handle, self.angular_upper_limit.x, self.angular_upper_limit.y, self.angular_upper_limit.z);
-                        
+
+                        for i in 0..6 {
+                            if self.enable_spring[i] {
+                                ffi::nk_constraint_enable_spring_6dof(handle, i as i32, 1);
+                                ffi::nk_constraint_set_stiffness_6dof(handle, i as i32, self.spring_stiffness[i]);
+                                ffi::nk_constraint_set_damping_6dof(handle, i as i32, self.spring_damping[i]);
+                            }
+                        }
+                    }
+                }
+                handle
+            }
+            ConstraintType::Generic6DofSpring2 => {
+                let nk_frame_a = nkTransform::from_core_transform(&self.frame_a);
+                let nk_frame_b = nkTransform::from_core_transform(&self.frame_b);
+
+                let handle = unsafe {
+                    ffi::nk_constraint_create_generic_6dof_spring2(
+                        body_a,
+                        body_b,
+                        &nk_frame_a,
+                        &nk_frame_b,
+                        RotateOrder::ZYX as i32,
+                    )
+                };
+
+                if !handle.is_null() {
+                    unsafe {
+                        ffi::nk_constraint_set_linear_lower_limit(handle, self.linear_lower_limit.x, self.linear_lower_limit.y, self.linear_lower_limit.z);
+                        ffi::nk_constraint_set_linear_upper_limit(handle, self.linear_upper_limit.x, self.linear_upper_limit.y, self.linear_upper_limit.z);
+                        ffi::nk_constraint_set_angular_lower_limit(handle, self.angular_lower_limit.x, self.angular_lower_limit.y, self.angular_lower_limit.z);
+                        ffi::nk_constraint_set_angular_upper_limit(handle, self.angular_upper_limit.x, self.angular_upper_limit.y, self.angular_upper_limit.z);
+
                         for i in 0..6 {
                             if self.enable_spring[i] {
                                 ffi::nk_constraint_enable_spring_6dof(handle, i as i32, 1);
