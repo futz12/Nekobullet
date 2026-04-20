@@ -56,6 +56,7 @@ pub enum CollisionShape {
 pub struct ShapeHandle {
     handle: NonNull<c_void>,
     shape_type: CollisionShapeType,
+    children: Vec<ShapeHandle>,
 }
 
 impl fmt::Debug for ShapeHandle {
@@ -74,6 +75,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create box shape"),
             shape_type: CollisionShapeType::Box,
+            children: Vec::new(),
         }
     }
 
@@ -82,6 +84,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create sphere shape"),
             shape_type: CollisionShapeType::Sphere,
+            children: Vec::new(),
         }
     }
 
@@ -90,6 +93,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create capsule shape"),
             shape_type: CollisionShapeType::Capsule,
+            children: Vec::new(),
         }
     }
 
@@ -98,6 +102,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create capsule z shape"),
             shape_type: CollisionShapeType::Capsule,
+            children: Vec::new(),
         }
     }
 
@@ -108,6 +113,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create cylinder shape"),
             shape_type: CollisionShapeType::Cylinder,
+            children: Vec::new(),
         }
     }
 
@@ -116,6 +122,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create cone shape"),
             shape_type: CollisionShapeType::Cone,
+            children: Vec::new(),
         }
     }
 
@@ -124,6 +131,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create plane shape"),
             shape_type: CollisionShapeType::StaticPlane,
+            children: Vec::new(),
         }
     }
 
@@ -135,6 +143,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create convex hull shape"),
             shape_type: CollisionShapeType::ConvexHull,
+            children: Vec::new(),
         }
     }
 
@@ -143,6 +152,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create compound shape"),
             shape_type: CollisionShapeType::Compound,
+            children: Vec::new(),
         }
     }
 
@@ -154,7 +164,7 @@ impl ShapeHandle {
         unsafe {
             ffi::nk_compound_add_child(self.handle.as_ptr(), child.handle(), &nk_transform);
         }
-        std::mem::forget(child);
+        self.children.push(child);
     }
 
     pub fn new_triangle_mesh(vertices: &[Vec3], indices: &[i32]) -> Self {
@@ -170,6 +180,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create triangle mesh shape"),
             shape_type: CollisionShapeType::TriangleMesh,
+            children: Vec::new(),
         }
     }
 
@@ -194,6 +205,7 @@ impl ShapeHandle {
         Self {
             handle: NonNull::new(handle).expect("Failed to create heightfield shape"),
             shape_type: CollisionShapeType::Heightfield,
+            children: Vec::new(),
         }
     }
 

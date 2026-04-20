@@ -11,6 +11,7 @@ readme = "README.md"
 
 [dependencies]
 glam = "0.27"
+thiserror = "1.0"
 
 [dev-dependencies]
 approx = "0.5"

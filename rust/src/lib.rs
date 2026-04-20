@@ -4,9 +4,11 @@
 #![allow(non_camel_case_types)]
 #![allow(ambiguous_glob_reexports)]
 
+pub mod error;
 pub mod ffi;
 pub mod core;
 
+pub use error::*;
 pub use core::*;
 
 #[cfg(feature = "collision")]

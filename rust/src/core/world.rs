@@ -1,8 +1,9 @@
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 use std::collections::BTreeMap;
 use std::ffi::c_void;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
+use std::sync::Mutex;
 
 use super::constraint::{Constraint, ConstraintBuilder};
 use super::ghost::GhostObject;
@@ -18,8 +19,8 @@ pub type ContactCallback = Box<dyn FnMut(&ContactPoint)>;
 pub type CollisionFilterCallback = Box<dyn Fn(RigidBodyHandle, RigidBodyHandle) -> bool>;
 
 struct CallbackStorage {
-    contact_callback: RefCell<Option<ContactCallback>>,
-    collision_filter: RefCell<Option<CollisionFilterCallback>>,
+    contact_callback: Mutex<Option<ContactCallback>>,
+    collision_filter: Mutex<Option<CollisionFilterCallback>>,
 }
 
 pub struct PhysicsWorld {
@@ -46,8 +47,8 @@ impl PhysicsWorld {
             next_constraint_handle: Cell::new(1),
             next_ghost_handle: Cell::new(1),
             callbacks: Box::new(CallbackStorage {
-                contact_callback: RefCell::new(None),
-                collision_filter: RefCell::new(None),
+                contact_callback: Mutex::new(None),
+                collision_filter: Mutex::new(None),
             }),
             _marker: PhantomData,
         }
@@ -404,7 +405,7 @@ impl PhysicsWorld {
     }
 
     pub fn get_constraint(&self, handle: ConstraintHandle) -> Option<Constraint> {
-        self.constraints.get(&handle).map(|ptr| unsafe {
+        self.constraints.get(&handle).and_then(|ptr| {
             Constraint::from_raw(ptr.as_ptr(), crate::core::constraint::ConstraintType::Generic6DofSpring)
         })
     }
@@ -456,12 +457,12 @@ impl PhysicsWorld {
     where
         F: FnMut(&ContactPoint) + 'static,
     {
-        *self.callbacks.contact_callback.borrow_mut() = Some(Box::new(callback));
+        *self.callbacks.contact_callback.lock().unwrap() = Some(Box::new(callback));
         
         extern "C" fn contact_trampoline(contact: *mut ffi::nkContactPoint, user_data: *mut c_void) {
             unsafe {
                 let world = &*(user_data as *const PhysicsWorld);
-                if let Some(ref mut callback) = *world.callbacks.contact_callback.borrow_mut() {
+                if let Some(ref mut callback) = *world.callbacks.contact_callback.lock().unwrap() {
                     let contact_point = ContactPoint {
                         position: Vec3::new((*contact).position[0], (*contact).position[1], (*contact).position[2]),
                         normal: Vec3::new((*contact).normal[0], (*contact).normal[1], (*contact).normal[2]),
@@ -484,7 +485,7 @@ impl PhysicsWorld {
     }
 
     pub fn clear_contact_callback(&mut self) {
-        *self.callbacks.contact_callback.borrow_mut() = None;
+        *self.callbacks.contact_callback.lock().unwrap() = None;
         unsafe {
             ffi::nk_world_set_contact_callback(
                 self.handle.as_ptr(),
@@ -498,7 +499,7 @@ impl PhysicsWorld {
     where
         F: Fn(RigidBodyHandle, RigidBodyHandle) -> bool + 'static,
     {
-        *self.callbacks.collision_filter.borrow_mut() = Some(Box::new(filter));
+        *self.callbacks.collision_filter.lock().unwrap() = Some(Box::new(filter));
         
         extern "C" fn filter_trampoline(
             body_a: ffi::nkRigidBodyHandle,
@@ -507,7 +508,7 @@ impl PhysicsWorld {
         ) -> i32 {
             unsafe {
                 let world = &*(user_data as *const PhysicsWorld);
-                if let Some(ref filter) = *world.callbacks.collision_filter.borrow() {
+                if let Some(ref filter) = *world.callbacks.collision_filter.lock().unwrap() {
                     let handle_a = world.find_body_handle(body_a);
                     let handle_b = world.find_body_handle(body_b);
                     if let (Some(a), Some(b)) = (handle_a, handle_b) {
@@ -528,7 +529,7 @@ impl PhysicsWorld {
     }
 
     pub fn clear_collision_filter(&mut self) {
-        *self.callbacks.collision_filter.borrow_mut() = None;
+        *self.callbacks.collision_filter.lock().unwrap() = None;
         unsafe {
             ffi::nk_world_set_collision_filter(
                 self.handle.as_ptr(),

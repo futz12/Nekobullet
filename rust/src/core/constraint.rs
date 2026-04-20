@@ -55,11 +55,11 @@ pub struct Constraint {
 }
 
 impl Constraint {
-    pub fn from_raw(ptr: *mut c_void, ctype: ConstraintType) -> Self {
-        Self {
-            handle: unsafe { NonNull::new_unchecked(ptr) },
+    pub fn from_raw(ptr: *mut c_void, ctype: ConstraintType) -> Option<Self> {
+        NonNull::new(ptr).map(|handle| Self {
+            handle,
             constraint_type: ctype,
-        }
+        })
     }
 
     pub fn handle(&self) -> *mut c_void {
